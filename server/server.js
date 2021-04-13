@@ -22,6 +22,21 @@ app.use(
 
 app.use(express.json());
 
+require('./models/record');
+require('./models/recorder');
+
+// Add a new record
+app.post('/', (req, res) => {
+  res.send(200);
+});
+
+// Fetch records based on query
+app.get('/', (req, res) => {
+  res.json({
+    records: [],
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 Up at http://localhost:${PORT}`);
 });
