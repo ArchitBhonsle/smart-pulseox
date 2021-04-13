@@ -1,5 +1,17 @@
 const mongoose = require('mongoose');
 
+const pointSchema = new mongoose.Schema({
+  type: {
+    type: String,
+    enum: ['Point'],
+    required: true,
+  },
+  coordinates: {
+    type: [Number],
+    required: true,
+  },
+});
+
 const recordSchema = mongoose.Schema({
   recorder: {
     type: mongoose.Schema.Types.ObjectId,
@@ -49,15 +61,7 @@ const recordSchema = mongoose.Schema({
     index: true,
   },
   location: {
-    type: {
-      type: String,
-      enum: ['Point'],
-      required: true,
-    },
-    coordinates: {
-      type: [Number],
-      required: true,
-    },
+    type: pointSchema,
     index: '2dsphere',
   },
 });
