@@ -15,7 +15,7 @@ mongoose.connect(MONGO_URL, {
 
 app.use(
   cors({
-    origin: '*',
+    origin: 'http://localhost:3000',
     credentials: true,
   })
 );
@@ -27,11 +27,16 @@ require('./models/recorder');
 
 // Add a new record
 app.post('/', (req, res) => {
-  res.send(200);
+  console.log('post');
+  res.send({
+    data: 'Successful',
+    error: null,
+  });
 });
 
 // Fetch records based on query
 app.get('/', (req, res) => {
+  console.log('get');
   res.json({
     records: [],
   });

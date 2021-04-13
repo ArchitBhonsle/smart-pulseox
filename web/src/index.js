@@ -1,12 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+import './index.css';
+
+import { ChakraProvider } from '@chakra-ui/react';
+import { SWRConfig } from 'swr';
+
+import fetcher from './utils/fetcher';
+
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <ChakraProvider>
+      <SWRConfig value={{ fetcher }}>
+        <App />
+      </SWRConfig>
+    </ChakraProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );
