@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:checkbox_formfield/checkbox_formfield.dart';
+import 'package:geolocator/geolocator.dart';
 
 // Create a Form widget.
 class NewRecord extends StatefulWidget {
@@ -161,15 +162,28 @@ class NewRecordState extends State<NewRecord> {
               width: double.infinity,
               height: 50.0,
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (!_formKey.currentState!.validate()) {
                     return;
                   }
                   _formKey.currentState!.save();
                   print(
                       '$_oxygen, $_pulse, $_name, $_phone, $_dob, $_vaccinated, $_gender, $_info');
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text('Processing Data')));
+
+                  // Map<String, double> loc = await getLocation();
+                  Map<String, double> loc = {
+                    'latitude': 19.1765327,
+                    'longitude': 72.9657134
+                  };
+                  print(loc);
+
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(
+                      'Data Sent',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    backgroundColor: Colors.greenAccent,
+                  ));
                 },
                 child: Text(
                   'Submit',
@@ -182,4 +196,36 @@ class NewRecordState extends State<NewRecord> {
       ),
     );
   }
+}
+
+Future<Map<String, double>> getLocation() async {
+  Map<String, double> locationMap = {};
+  bool serviceEnabled;
+  LocationPermission permission;
+
+  serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  if (!serviceEnabled) {
+    return Future.error('Location services are disabled.');
+  }
+
+  permission = await Geolocator.checkPermission();
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied) {
+      return Future.error('Location permissions are denied');
+    }
+  }
+
+  if (permission == LocationPermission.deniedForever) {
+    return Future.error(
+        'Location permissions are permanently denied, we cannot request permissions.');
+  }
+
+  Position pos = await Geolocator.getCurrentPosition();
+  locationMap = {
+    'latitude': pos.latitude,
+    'longitude': pos.longitude,
+  };
+
+  return locationMap;
 }
