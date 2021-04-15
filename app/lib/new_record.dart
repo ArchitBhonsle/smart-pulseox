@@ -170,11 +170,7 @@ class NewRecordState extends State<NewRecord> {
                   print(
                       '$_oxygen, $_pulse, $_name, $_phone, $_dob, $_vaccinated, $_gender, $_info');
 
-                  // Map<String, double> loc = await getLocation();
-                  Map<String, double> loc = {
-                    'latitude': 19.1765327,
-                    'longitude': 72.9657134
-                  };
+                  Map<String, double> loc = await getLocation();
                   print(loc);
 
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(

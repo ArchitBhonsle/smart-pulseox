@@ -13,10 +13,6 @@ const pointSchema = new mongoose.Schema({
 });
 
 const recordSchema = mongoose.Schema({
-  recorder: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Recorder',
-  },
   name: {
     type: String,
     required: true,
