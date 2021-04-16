@@ -16,12 +16,19 @@ const recordSchema = mongoose.Schema({
   name: {
     type: String,
     required: true,
+    index: true,
     trim: true,
   },
   phone: {
     type: String,
     required: true,
+    index: true,
     match: /^\d{10}$/,
+  },
+  stamp: {
+    type: Date,
+    default: Date.now,
+    index: true,
   },
   dob: {
     type: Date,

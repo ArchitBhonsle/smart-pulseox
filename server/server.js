@@ -32,6 +32,7 @@ app.post('/', async (req, res) => {
   try {
     const recordData = req.body.data;
     const record = new Record(recordData);
+    console.log(record);
     await record.save();
 
     res.send({
