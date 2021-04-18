@@ -50,7 +50,7 @@ app.post('/', async (req, res) => {
 // Fetch records based on query
 app.get('/', async (req, res) => {
   try {
-    const records = await Record.find({});
+    const records = await Record.find({}).sort('stamp').exec();
     res.json({
       data: records,
       error: null,
