@@ -1,13 +1,8 @@
-// import 'dart:async';
-// import 'dart:convert';
-
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:checkbox_formfield/checkbox_formfield.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:http/http.dart' as http;
 
 Future<http.Response> createRecord(Map<String, dynamic> data) {
@@ -30,43 +25,13 @@ class NewRecord extends StatefulWidget {
 
 class NewRecordState extends State<NewRecord> {
   final _formKey = GlobalKey<FormState>();
-
-  @override
-  void initState() async {
-    super.initState();
-
-    BluetoothDevice connectedDevice =
-        (await FlutterBluetoothSerial.instance.getBondedDevices())
-            .firstWhere((element) => element.isConnected);
-    print(connectedDevice.name);
-    try {
-      BluetoothConnection connection =
-          await BluetoothConnection.toAddress(connectedDevice.address);
-      print('Connected to the device');
-
-      connection.input.listen((Uint8List data) {
-        print('Data incoming: ${ascii.decode(data)}');
-        connection.output.add(data); // Sending data
-
-        if (ascii.decode(data).contains('!')) {
-          connection.finish(); // Closing connection
-          print('Disconnecting by local host');
-        }
-      }).onDone(() {
-        print('Disconnected by remote request');
-      });
-    } catch (exception) {
-      print('Cannot connect, exception occured');
-    }
-  }
+  String _name = '', _phone = '', _info = '', _gender = '';
+  DateTime _dob = DateTime.now();
+  bool _vaccinated = false;
+  int _oxygen = 99, _pulse = 60;
 
   @override
   Widget build(BuildContext context) {
-    String _name = '', _phone = '', _info = '', _gender = '';
-    DateTime _dob = DateTime.now();
-    bool _vaccinated = false;
-    int _oxygen = 99, _pulse = 60;
-
     return Form(
       key: _formKey,
       child: Column(
@@ -235,13 +200,6 @@ class NewRecordState extends State<NewRecord> {
                   };
 
                   await createRecord(data);
-                  print(data);
-                  var devices =
-                      await FlutterBluetoothSerial.instance.getBondedDevices();
-                  devices.forEach((element) {
-                    print(
-                        '${element.name} ${element.address} ${element.isConnected}');
-                  });
 
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text(
