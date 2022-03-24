@@ -1,14 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:checkbox_formfield/checkbox_formfield.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
-
-final _random = new Random();
-int randomInRange(int min, int max) => min + _random.nextInt(max - min);
 
 Future<http.Response> createRecord(Map<String, dynamic> data) {
   return http.post(
@@ -23,103 +19,18 @@ Future<http.Response> createRecord(Map<String, dynamic> data) {
 // Create a Form widget.
 class NewRecord extends StatefulWidget {
   @override
-  NewRecordState createState() {
-    return NewRecordState();
+  _NewRecordState createState() {
+    return _NewRecordState();
   }
 }
 
-class NewRecordState extends State<NewRecord> {
+class _NewRecordState extends State<NewRecord> {
   final _formKey = GlobalKey<FormState>();
-  late Timer timer;
 
   String _name = '', _phone = '', _info = '', _gender = '';
   DateTime _dob = DateTime.now();
   bool _vaccinated = false;
   int _oxygen = 0, _pulse = 0;
-
-  bool _goUp = true;
-  bool random = false;
-
-  @override
-  void initState() {
-    super.initState();
-    timer = Timer.periodic(Duration(milliseconds: 500), (Timer t) {
-      if (random) {
-        _randomize();
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    timer.cancel();
-    super.dispose();
-  }
-
-  void _randomize() {
-    int delta = randomInRange(-2, 2);
-    setState(() {
-      _oxygen = 97 + delta;
-      _pulse = 71 + delta;
-    });
-  }
-
-  void _increaseOxygen() {
-    if (_oxygen < 97) {
-      setState(() {
-        ++_oxygen;
-      });
-    }
-  }
-
-  void _decreaseOxygen() {
-    if (_oxygen > 0) {
-      setState(() {
-        --_oxygen;
-      });
-    }
-  }
-
-  void _increasePulse() {
-    if (_pulse < 71) {
-      setState(() {
-        ++_pulse;
-      });
-    }
-  }
-
-  void _decreasePulse() {
-    if (_pulse > 0) {
-      setState(() {
-        --_pulse;
-      });
-    }
-  }
-
-  void increase() {
-    if (_oxygen < 97 || _pulse < 71) {
-      _increaseOxygen();
-      _increasePulse();
-      Timer(const Duration(milliseconds: 10), increase);
-    } else {
-      setState(() {
-        _goUp = false;
-        random = true;
-      });
-    }
-  }
-
-  void decrease() {
-    if (_oxygen > 0 || _pulse > 0) {
-      _decreaseOxygen();
-      _decreasePulse();
-      Timer(const Duration(milliseconds: 1), decrease);
-    } else {
-      setState(() {
-        _goUp = true;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -130,42 +41,27 @@ class NewRecordState extends State<NewRecord> {
         children: <Widget>[
           Padding(
             padding: EdgeInsets.symmetric(vertical: 16.0),
-            child: GestureDetector(
-              onTap: () {
-                if (_goUp) {
-                  increase();
-                } else {
-                  setState(() {
-                    random = false;
-                  });
-                  decrease();
-                }
-                final snackBar = SnackBar(content: Text("$_goUp"));
-
-                ScaffoldMessenger.of(context).showSnackBar(snackBar);
-              },
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Column(children: <Widget>[
-                    Text(
-                      '$_oxygen',
-                      style: TextStyle(
-                          fontSize: 70.0, fontWeight: FontWeight.bold),
-                    ),
-                    Text('Oxygen Level')
-                  ]),
-                  Column(children: <Widget>[
-                    Text(
-                      '$_pulse',
-                      style: TextStyle(
-                          fontSize: 70.0, fontWeight: FontWeight.bold),
-                    ),
-                    Text('Heart Rate')
-                  ]),
-                ],
-              ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Column(children: <Widget>[
+                  Text(
+                    '$_oxygen',
+                    style: TextStyle(
+                        fontSize: 70.0, fontWeight: FontWeight.bold),
+                  ),
+                  Text('Oxygen Level')
+                ]),
+                Column(children: <Widget>[
+                  Text(
+                    '$_pulse',
+                    style: TextStyle(
+                        fontSize: 70.0, fontWeight: FontWeight.bold),
+                  ),
+                  Text('Heart Rate')
+                ]),
+              ],
             ),
           ),
           Padding(
@@ -231,12 +127,13 @@ class NewRecordState extends State<NewRecord> {
                     title: Text('Vaccinated'),
                     onSaved: (newValue) {
                       setState(() {
-                        _vaccinated = newValue;
+                        _vaccinated = newValue!;
                       });
                     },
                   ),
                 ),
               ),
+
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
