@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:smart_pulseox_app/your_history.dart';
-
+import 'your_history.dart';
 import 'new_record.dart';
 
 void main() {

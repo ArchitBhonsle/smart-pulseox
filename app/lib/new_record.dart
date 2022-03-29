@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:checkbox_formfield/checkbox_formfield.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 
-Future<http.Response> createRecord(Map<String, dynamic> data) {
+import 'package:checkbox_formfield/checkbox_formfield.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+
+Future<http.Response> _createRecord(Map<String, dynamic> data) {
   return http.post(
     Uri.http('192.168.0.111:4000', ''),
     headers: <String, String>{
@@ -32,6 +35,28 @@ class _NewRecordState extends State<NewRecord> {
   bool _vaccinated = false;
   int _oxygen = 0, _pulse = 0;
 
+  BluetoothConnection? _connection;
+
+  void _connect() async {
+    BluetoothConnection connection =
+        await BluetoothConnection.toAddress("00:20:10:08:66:AF");
+    setState(() {
+      _connection = connection;
+    });
+  }
+
+  @override
+  void initState() {
+    _connect();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _connection?.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -41,28 +66,41 @@ class _NewRecordState extends State<NewRecord> {
         children: <Widget>[
           Padding(
             padding: EdgeInsets.symmetric(vertical: 16.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Column(children: <Widget>[
-                  Text(
-                    '$_oxygen',
-                    style: TextStyle(
-                        fontSize: 70.0, fontWeight: FontWeight.bold),
-                  ),
-                  Text('Oxygen Level')
-                ]),
-                Column(children: <Widget>[
-                  Text(
-                    '$_pulse',
-                    style: TextStyle(
-                        fontSize: 70.0, fontWeight: FontWeight.bold),
-                  ),
-                  Text('Heart Rate')
-                ]),
-              ],
-            ),
+            child: StreamBuilder<Uint8List>(
+                stream: _connection?.input,
+                builder:
+                    (BuildContext context, AsyncSnapshot<Uint8List> snapshot) {
+                  if (snapshot.hasData) {
+                    Uint8List data = snapshot.data!;
+                    setState(() {
+                      _oxygen = data[0];
+                      _pulse = data[1];
+                    });
+                  }
+
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Column(children: <Widget>[
+                        Text(
+                          '$_oxygen',
+                          style: TextStyle(
+                              fontSize: 70.0, fontWeight: FontWeight.bold),
+                        ),
+                        Text('Oxygen Level')
+                      ]),
+                      Column(children: <Widget>[
+                        Text(
+                          '$_pulse',
+                          style: TextStyle(
+                              fontSize: 70.0, fontWeight: FontWeight.bold),
+                        ),
+                        Text('Heart Rate')
+                      ]),
+                    ],
+                  );
+                }),
           ),
           Padding(
             padding: EdgeInsets.all(8.0),
@@ -133,7 +171,6 @@ class _NewRecordState extends State<NewRecord> {
                   ),
                 ),
               ),
-
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -202,7 +239,7 @@ class _NewRecordState extends State<NewRecord> {
                     }
                   };
 
-                  await createRecord(data);
+                  await _createRecord(data);
 
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text(
