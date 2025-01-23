@@ -1,3 +1,6 @@
+// This is dummy code I used to work on the app and the website. Never really bothered checking the actual arduino code in the repo
+// as that was a lot of tinkering in Arduino IDE
+
 #include <SoftwareSerial.h>
 
 #define TXD_PIN 11
